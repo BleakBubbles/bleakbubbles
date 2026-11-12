@@ -136,27 +136,6 @@
 <!-- Outside #app so it stays usable while frozen (z-index above the overlay). -->
 <button id="freeze" type="button" aria-label="Freeze the page"><span class="fz-icon">⏸</span><span class="fz-label">Freeze</span></button>
 
-<aside id="devpanel" aria-label="Prototype controls">
-  <p class="dp-title">Prototype controls</p>
-  <label class="dp-row">Block <input type="range" id="dp-block" min="2" max="24" step="1" value="8"> <output id="dp-block-out">8</output>px</label>
-  <label class="dp-row"><input type="checkbox" id="dp-palette"> 64-colour palette</label>
-  <label class="dp-row"><input type="checkbox" id="dp-shapes" checked> Flying shapes</label>
-  <label class="dp-row">In front
-    <select id="dp-front">
-      <option value="0">None</option>
-      <option value="0.5" selected>Nearer half</option>
-      <option value="1">All</option>
-    </select>
-  </label>
-  <label class="dp-row">Shapes move
-    <select id="dp-scroll">
-      <option value="parallax">Parallax</option>
-      <option value="page">With the page</option>
-      <option value="fixed">With the screen</option>
-    </select>
-  </label>
-  <label class="dp-row"><input type="checkbox" id="dp-backing" checked> Solid backing behind text</label>
-</aside>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script type="module" src="main.js"></script>

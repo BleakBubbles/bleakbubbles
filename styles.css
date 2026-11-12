@@ -160,18 +160,6 @@ a { color: inherit; }
 #freeze:hover { background: #a9bcff; }
 #freeze:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
 
-/* ---------- dev panel (prototype only) ---------- */
-#devpanel {
-  position: fixed; top: 76px; right: 12px; z-index: 2147483100;
-  background: var(--raised); border: 1px solid var(--line-strong); color: var(--ink); border-radius: 12px; padding: 10px 14px 12px;
-  font: 500 13px/1.4 var(--font-body); display: grid; gap: 6px; min-width: 220px;
-}
-.dp-title { margin: 0; font: 600 11px var(--font-mono); text-transform: uppercase; letter-spacing: .08em; color: var(--faint); }
-.dp-row { display: flex; align-items: center; gap: 8px; }
-.dp-row input[type="range"] { flex: 1; min-width: 80px; }
-.dp-row select { font: inherit; background: var(--raised-2); color: var(--ink); border: 1px solid var(--line-strong); border-radius: 6px; padding: 2px 6px; }
-.dp-row output { font-family: var(--font-mono); min-width: 2ch; text-align: right; }
-
 /* ---------- small screens ---------- */
 @media (max-width: 760px) {
   body { font-size: 16px; }
@@ -185,7 +173,6 @@ a { color: inherit; }
   .hero-text .rotator { margin: 18px 0 28px; }
   .hero-grid .avatar { width: 112px; height: 112px; min-height: 0; align-self: start; border-radius: 22px; }
   .project { grid-template-columns: 1fr; gap: 6px; padding: 36px 0; }
-  #devpanel { left: 12px; right: 12px; top: auto; bottom: 80px; min-width: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {

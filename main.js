@@ -62,7 +62,6 @@ const shapes = createShapes(document.getElementById('shapes'), {
   front: document.getElementById('shapes-front'),
   frontFrom: 0.5, // the nearer half of the shapes fly in front of the content
 });
-let shapesOn = true;
 shapes.start();
 
 // ---------------------------------------------------------------------------
@@ -82,7 +81,7 @@ const pf = createPixelFreeze({
     btn.setAttribute('aria-label', frozen ? 'Unfreeze the page' : 'Freeze the page');
     // JS-driven motion isn't paused by pixel-freeze, so hold it here.
     if (state === 'freezing') shapes.stop();
-    if (state === 'thawing' && shapesOn) shapes.start();
+    if (state === 'thawing') shapes.start();
   },
 });
 
@@ -93,28 +92,3 @@ window.addEventListener('keydown', e => {
     pf.toggle(btn);
   }
 });
-
-// ---------------------------------------------------------------------------
-// Prototype controls (remove before launch)
-// ---------------------------------------------------------------------------
-const blockInput = document.getElementById('dp-block');
-const blockOut = document.getElementById('dp-block-out');
-blockInput.addEventListener('input', () => {
-  blockOut.textContent = blockInput.value;
-  pf.setBlockSize(Number(blockInput.value));
-});
-document.getElementById('dp-palette').addEventListener('change', e => pf.setPalette(e.target.checked));
-document.getElementById('dp-shapes').addEventListener('change', e => {
-  shapesOn = e.target.checked;
-  if (shapesOn) { if (pf.state === 'idle') shapes.start(); } else shapes.hide();
-});
-
-document.getElementById('dp-scroll').addEventListener('change', e => shapes.setScrollMode(e.target.value));
-document.getElementById('dp-front').addEventListener('change', e => shapes.setFrontShare(Number(e.target.value)));
-document.getElementById('dp-backing').addEventListener('change', e => {
-  document.documentElement.toggleAttribute('data-backing', e.target.checked);
-});
-
-// Handy for testing from the console.
-window.pf = pf;
-window.shapes = shapes;
