@@ -1,0 +1,14 @@
+<svg width="560" height="560" viewBox="0 0 560 560" xmlns="http://www.w3.org/2000/svg">
+<title>Protag</title>
+<!-- Protag brand mark (assets/brand/logo.svg) on the app icon's cream background.
+     The stem runs off the bottom edge; the viewBox crops it, as in the store icon. -->
+<rect width="560" height="560" fill="#f5e7ca"/>
+<mask id="ring-hole" maskUnits="userSpaceOnUse" x="0" y="0" width="560" height="560">
+  <ellipse cx="279.611" cy="254.964" rx="140" ry="100" transform="rotate(-22.5 279.611 254.964)" fill="#FFFFFF"/>
+  <ellipse cx="279.567" cy="254.578" rx="84" ry="60" transform="rotate(-22.5 279.567 254.578)" fill="#000000"/>
+</mask>
+<g fill="#446170">
+  <rect x="144.73" y="279.964" width="56" height="840"/>
+  <rect width="560" height="560" mask="url(#ring-hole)"/>
+</g>
+</svg>

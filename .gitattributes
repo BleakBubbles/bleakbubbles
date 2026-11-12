@@ -1,0 +1,4 @@
+# Store text files with LF and keep them LF on disk (web files, any OS)
+* text=auto eol=lf
+*.webp binary
+*.png binary

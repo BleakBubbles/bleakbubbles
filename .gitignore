@@ -1,0 +1,14 @@
+# OS / editor clutter
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+
+# Claude Code project settings
+.claude/
+
+# Dependencies and build output, if a build step is added later
+node_modules/
+dist/
