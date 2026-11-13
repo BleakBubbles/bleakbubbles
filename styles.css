@@ -1,13 +1,14 @@
 /* ==========================================================================
-   Max H / BleakBubbles — prototype
+   Max H / BleakBubbles
    Flat dark theme, no gradients. Depth comes from layered surfaces
-   (page → surface → raised) and borders, with the flying 3D shapes
-   (shapes.js) passing behind the cards.
+   (page → surface → raised) and borders. The flying 3D shapes (shapes.js)
+   pass behind the solid cards, and the nearer half fly in front of them.
    Everything that moves in CSS animates transform/opacity on real elements,
    so pixel-freeze can pause it and copy its mid-motion state.
    ========================================================================== */
 
 :root {
+  --intro-gap: 96px;     /* header → intro card; the freeze button's top lines up with the card */
   --section-gap: 160px;  /* space between the content of neighbouring sections; halves sit on each side */
   --font-head: "Space Grotesk", system-ui, sans-serif;
   --font-body: "Inter", system-ui, sans-serif;
@@ -16,24 +17,12 @@
   --page: #0c0c10;
   --surface: #15151b;
   --raised: #1d1d25;
-  --raised-2: #26262f;
   --line: #262630;
   --line-strong: #363642;
   --ink: #ececf1;
   --muted: #9a9aa8;
   --faint: #5c5c6a;
   --accent: #8fa8ff;
-  --accent-ink: #0c0c10;
-
-  /* small colour notes, shared with the shapes */
-  --pink: #ff5d8f;
-  --yellow: #ffd166;
-  --mint: #4dd4ac;
-  --blue: #6c8cff;
-  --violet: #b388ff;
-  --cyan: #2ee6ff;   /* from the avatar's blue eye */
-  --red: #ff6b6b;    /* Tetris Z */
-  --orange: #ffa45c; /* Tetris L */
 }
 
 * { box-sizing: border-box; }
@@ -50,12 +39,13 @@ body {
 #shapes-front { z-index: 2; }  /* above the content; clicks pass straight through */
 #app > :not(canvas) { position: relative; z-index: 1; }
 
-/* Optional solid backing behind the reading text (projects + about), so
-   shapes don't pass behind the words. Toggled with html[data-backing]. */
-html[data-backing] .project,
-html[data-backing] .about-card { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 32px; }
-html[data-backing] .project { margin-bottom: 20px; }
-html[data-backing] .project:last-child { margin-bottom: 0; }
+/* Solid cards behind the reading content (intro, project rows, About), so
+   the shapes flying behind don't pass under the words. */
+.hero-card,
+.project,
+.about-card { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 32px; }
+.project { margin-bottom: 20px; }
+.project:last-child { margin-bottom: 0; }
 
 h1, h2, h3 { font-family: var(--font-head); line-height: 1.1; margin: 0; }
 h1 { font-size: clamp(3rem, 9vw, 6.2rem); letter-spacing: -0.03em; font-weight: 700; }
@@ -77,7 +67,7 @@ a { color: inherit; }
 .nav .brand { color: var(--ink); }
 
 /* ---------- hero ---------- */
-.hero { padding: 96px 0 calc(var(--section-gap) / 2); }  /* header → intro: a bit tighter than between sections */
+.hero { padding: var(--intro-gap) 0 calc(var(--section-gap) / 2); }  /* header → intro: a bit tighter than between sections */
 /* Avatar left, intro right. The name's cap tops and the sentence's last baseline line up with
    the avatar's edges; the "aka" line sits above, outside that alignment. */
 /* Avatar size tracks the heading + subtitle (both sized in vw), so the space
@@ -108,9 +98,8 @@ a { color: inherit; }
 
 /* ---------- projects ---------- */
 .projects { padding: calc(var(--section-gap) / 2) 0; }
-/* Text-only rows: logo, name and details on the left, description on the right. */
-.project { display: grid; grid-template-columns: 260px 1fr; gap: 48px; padding: 48px 0; border-top: 1px solid var(--line); }
-.project:last-child { border-bottom: 1px solid var(--line); }
+/* Each project card: logo, name and details on the left, description on the right. */
+.project { display: grid; grid-template-columns: 260px 1fr; gap: 48px; }
 .p-head { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
 .p-head h3 { margin: 0; }
 .p-logo { width: 56px; height: 56px; border-radius: 14px; overflow: hidden; flex: none; display: grid; place-items: center; border: 1px solid var(--line-strong); }
@@ -137,7 +126,7 @@ a { color: inherit; }
 
 /* ---------- about ---------- */
 .about { padding: calc(var(--section-gap) / 2) 0; }
-.about p { max-width: 62ch; color: var(--muted); }
+.about p { color: var(--muted); margin-bottom: 16px; text-wrap: pretty; } /* short sentences: use the card's full width, and avoid one-word last lines when they wrap */
 .about-card p:last-child { margin-bottom: 0; }
 
 /* ---------- contact ---------- */
@@ -150,29 +139,62 @@ a { color: inherit; }
 .links a:hover { background: var(--raised); }
 .fine { font-size: .85rem; color: var(--faint); }
 
-/* ---------- freeze button ---------- */
+/* ---------- freeze button ----------
+   A black squircle with a 3x3 "pixel" icon. When frozen it turns into a
+   3x3x3 voxel cube ("back to the real world" = back to 3D), extruding out of
+   the flat grid once the ripple is done. Drawn and animated by freeze-icon.js.
+   The border is a spinning pastel rainbow, roughened by an SVG filter so it
+   looks hand-drawn and "boils" like an animated avatar frame.
+   The button sits outside #app, so html2canvas never has to draw any of this. */
+@property --fz-angle { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
 #freeze {
-  position: fixed; right: 20px; bottom: 20px; z-index: 2147483001;
-  display: flex; align-items: center; gap: 8px;
-  font: 600 15px var(--font-body); padding: 12px 20px 12px 16px; border-radius: 999px;
-  background: var(--accent); color: var(--accent-ink); border: 0; cursor: pointer;
+  --fz-size: 56px; --fz-radius: 16px; --fz-ring: 3px;
+  /* The page margin: from the cards' right edge to the screen edge. The content
+     column is 1040px max with a 24px gutter (16px on phones). The % is used
+     inside `right`, where it means the page width without the scrollbar. */
+  --gutter: 24px;
+  --margin: max(var(--gutter), (100% - 1040px) / 2 + var(--gutter));
+  /* Narrow screens have no room in the margin: line the button's right edge
+     up with the cards' right edge instead (see the wide-screen rule below). */
+  position: fixed; right: var(--margin); top: calc(65px + var(--intro-gap)); z-index: 2147483001;  /* top lines up with the intro card's top (header is 64px + 1px border) */
+  width: var(--fz-size); height: var(--fz-size); padding: 0; border: 0; border-radius: var(--fz-radius);
+  background: none; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: transform .2s cubic-bezier(.3, 1.6, .5, 1);
 }
-#freeze:hover { background: #a9bcff; }
-#freeze:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+/* Wide screens: the button sits just outside the content column, a gutter's
+   width (24px) to the right of the cards. From 1200px wide there's room for
+   that with ~20px or more to spare before the screen edge. */
+@media (min-width: 1200px) {
+  #freeze { right: calc(var(--margin) - var(--gutter) - var(--fz-size)); }
+}
+#freeze:hover { transform: scale(1.06); }
+#freeze:active { transform: scale(.94); }
+#freeze:focus-visible { outline: 2px solid var(--ink); outline-offset: 6px; }
+.fz-ring, .fz-glow {
+  position: absolute; inset: calc(var(--fz-ring) * -1); border-radius: calc(var(--fz-radius) + var(--fz-ring));
+  background: conic-gradient(from var(--fz-angle), #2ee6ff, #6c8cff, #b388ff, #ff5d8f, #ffa45c, #ffd166, #4dd4ac, #2ee6ff);
+  animation: fz-spin 5s linear infinite;
+}
+.fz-ring { filter: url(#fz-wobble); }
+.fz-glow { inset: -2px; filter: blur(10px); opacity: .5; }
+.fz-face { position: absolute; inset: 0; border-radius: var(--fz-radius); background: #000; display: grid; place-items: center; }
+.fz-grid { display: block; overflow: visible; }
+@keyframes fz-spin { to { --fz-angle: 360deg; } }
 
 /* ---------- small screens ---------- */
 @media (max-width: 760px) {
   body { font-size: 16px; }
   .wrap { padding: 0 16px; }
+  #freeze { --gutter: 16px; }
   .nav ul { gap: 16px; }
   :root { --section-gap: 112px; }
-  .hero { padding-top: 48px; }
+  :root { --intro-gap: 48px; }
   .hero-grid { grid-template-columns: 1fr; grid-template-areas: "avatar" "kicker" "text"; gap: 0; }
   .hero-grid .kicker { margin: 24px 0 8px; }
   .hero-text { min-height: 0; }
   .hero-text .rotator { margin: 18px 0 28px; }
   .hero-grid .avatar { width: 112px; height: 112px; min-height: 0; align-self: start; border-radius: 22px; }
-  .project { grid-template-columns: 1fr; gap: 6px; padding: 36px 0; }
+  .project { grid-template-columns: 1fr; gap: 6px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

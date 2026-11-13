@@ -44,6 +44,8 @@ const PIECES = {
   J: { color: '#6c8cff', cells: [[0,0],[0,1],[1,1],[2,1]] },
   L: { color: '#ffa45c', cells: [[2,0],[0,1],[1,1],[2,1]] },
 };
+// Just the colours, by piece. main.js deals the "I build ___" word colours from these.
+export const PIECE_COLORS = Object.fromEntries(Object.entries(PIECES).map(([k, p]) => [k, p.color]));
 const OUTLINE_SHADE = 0.78; // block seams on pieces: 1 = invisible, lower = darker lines
 const PIECE_SCALE = 0.44; // one block, in shape units (the I piece spans ~1.8)
 
@@ -73,8 +75,8 @@ for (const [name, p] of Object.entries(PIECES)) SOLIDS['piece' + name] = buildPi
 // Exactly one Tetris piece is in flight at a time: when it leaves the screen,
 // the next piece from the bag takes its place straight away.
 
-// 7-bag, as in Tetris: every piece once per shuffled bag.
-function makeBag(items) {
+// 7-bag, as in Tetris: every item once per shuffled bag, then a fresh shuffle.
+export function makeBag(items) {
   let bag = [];
   return () => {
     if (!bag.length) {
@@ -260,18 +262,6 @@ export function createShapes(canvas, { count, front = null, frontFrom = Infinity
     raf = requestAnimationFrame(frame);
   }
   function stop() { running = false; cancelAnimationFrame(raf); }
-  function hide() { stop(); for (const { c } of layers) c.style.display = 'none'; }
-  function setScrollMode(mode) {
-    scroll = mode;
-    measurePage();
-    populate();
-    if (!running) drawAll();
-  }
-  // Share of shapes in front of the content: 0 = none, 0.5 = the nearer half, 1 = all.
-  function setFrontShare(share) {
-    frontFrom = share <= 0 ? Infinity : 1 - share;
-    if (!running) drawAll();
-  }
 
   resize();
   populate();
@@ -283,5 +273,5 @@ export function createShapes(canvas, { count, front = null, frontFrom = Infinity
     if (scroll !== 'fixed' && Math.abs(maxScroll - populatedFor) > H * 0.5) { populate(); if (!running) drawAll(); }
   }).observe(document.documentElement);
 
-  return { start, stop, hide, setFrontShare, setScrollMode, get running() { return running; } };
+  return { start, stop };
 }

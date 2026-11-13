@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-backing>
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -32,7 +32,8 @@
 
   <!-- ============ HERO ============ -->
   <header class="hero" id="top">
-    <div class="wrap hero-grid">
+    <div class="wrap">
+    <div class="hero-card hero-grid">
       <p class="kicker">aka <span class="mono">BleakBubbles</span></p>
       <img class="avatar" src="assets/avatar.webp" alt="BleakBubbles avatar: a dark hooded figure with three glowing eyes in green, pink and cyan" width="240" height="240">
       <div class="hero-text">
@@ -47,6 +48,7 @@
       <p class="lede">Third-year Computer Science + Finance student at the University of Waterloo.</p>
       </div>
     </div>
+    </div>
   </header>
 
   <!-- ============ PROJECTS ============ -->
@@ -54,20 +56,20 @@
     <div class="wrap">
       <h2>Projects</h2>
 
-      <article class="project" data-repo="qwizz" data-npm="qwizz">
+      <article class="project" data-repo="flooper">
         <div class="p-side">
-          <div class="p-head"><span class="p-logo logo-qwizz"><img src="assets/logos/qwizz.svg" alt="" width="36" height="36"></span><h3>Qwizz</h3></div>
+          <div class="p-head"><span class="p-logo logo-flooper"><img src="assets/logos/flooper.svg" alt="" width="56" height="56"></span><h3>Flooper</h3></div>
           <ul class="meta" aria-label="Repository details">
             <li class="m-updated" hidden></li>
-            <li class="m-extra"><a href="https://www.npmjs.com/package/qwizz">On npm</a></li>
+            <li class="m-extra">Live at flooper.app</li>
           </ul>
         </div>
         <div class="p-text">
-          <p>A dev tool that quizzes you on your own code changes. Make a commit and a page opens with questions about the diff. Answer them correctly and the commit goes through.</p>
-          <p class="why">Built to keep people learning in the era of vibe coding.</p>
-          <ul class="stack" aria-label="Built with"><li title="TypeScript"><img src="assets/tech/typescript.svg" alt="TypeScript" width="24" height="24"></li><li title="Node.js"><img src="assets/tech/nodedotjs.svg" alt="Node.js" width="24" height="24"></li><li title="Git"><img src="assets/tech/git.svg" alt="Git" width="24" height="24"></li><li title="React"><img src="assets/tech/react.svg" alt="React" width="24" height="24"></li><li title="Vite"><img src="assets/tech/vite.svg" alt="Vite" width="24" height="24"></li><li title="Hono"><img src="assets/tech/hono.svg" alt="Hono" width="24" height="24"></li></ul>
-          <a class="link" href="https://www.npmjs.com/package/qwizz">npm <span class="arr" aria-hidden="true">→</span></a>
-          <a class="link" href="https://github.com/BleakBubbles/qwizz">GitHub <span class="arr" aria-hidden="true">→</span></a>
+          <p>A tiny feedback widget for websites. Visitors tap a reaction, leave a short note and point at the exact part of the page they mean. You read it all at flooper.app.</p>
+          <p class="why">Under 10&nbsp;KB gzipped, with no dependencies.</p>
+          <ul class="stack" aria-label="Built with"><li title="TypeScript"><img src="assets/tech/typescript.svg" alt="TypeScript" width="24" height="24"></li><li title="Cloudflare Workers"><img src="assets/tech/cloudflareworkers.svg" alt="Cloudflare Workers" width="24" height="24"></li><li title="Hono"><img src="assets/tech/hono.svg" alt="Hono" width="24" height="24"></li><li title="React"><img src="assets/tech/react.svg" alt="React" width="24" height="24"></li><li title="Vite"><img src="assets/tech/vite.svg" alt="Vite" width="24" height="24"></li><li title="Zod"><img src="assets/tech/zod.svg" alt="Zod" width="24" height="24"></li></ul>
+          <a class="link" href="https://flooper.app/">flooper.app <span class="arr" aria-hidden="true">→</span></a>
+          <a class="link" href="https://github.com/BleakBubbles/flooper">GitHub <span class="arr" aria-hidden="true">→</span></a>
         </div>
       </article>
 
@@ -87,20 +89,20 @@
         </div>
       </article>
 
-      <article class="project" data-repo="flooper">
+      <article class="project" data-repo="qwizz" data-npm="qwizz">
         <div class="p-side">
-          <div class="p-head"><span class="p-logo logo-flooper"><img src="assets/logos/flooper.svg" alt="" width="56" height="56"></span><h3>Flooper</h3></div>
+          <div class="p-head"><span class="p-logo logo-qwizz"><img src="assets/logos/qwizz.svg" alt="" width="36" height="36"></span><h3>Qwizz</h3></div>
           <ul class="meta" aria-label="Repository details">
             <li class="m-updated" hidden></li>
-            <li class="m-extra">Live at flooper.app</li>
+            <li class="m-extra"><a href="https://www.npmjs.com/package/qwizz">On npm</a></li>
           </ul>
         </div>
         <div class="p-text">
-          <p>A tiny feedback widget for websites. Visitors tap a reaction, leave a short note and point at the exact part of the page they mean. You read it all at flooper.app.</p>
-          <p class="why">Under 10&nbsp;KB gzipped, with no dependencies.</p>
-          <ul class="stack" aria-label="Built with"><li title="TypeScript"><img src="assets/tech/typescript.svg" alt="TypeScript" width="24" height="24"></li><li title="Cloudflare Workers"><img src="assets/tech/cloudflareworkers.svg" alt="Cloudflare Workers" width="24" height="24"></li><li title="Hono"><img src="assets/tech/hono.svg" alt="Hono" width="24" height="24"></li><li title="React"><img src="assets/tech/react.svg" alt="React" width="24" height="24"></li><li title="Vite"><img src="assets/tech/vite.svg" alt="Vite" width="24" height="24"></li><li title="Zod"><img src="assets/tech/zod.svg" alt="Zod" width="24" height="24"></li></ul>
-          <a class="link" href="https://flooper.app/">flooper.app <span class="arr" aria-hidden="true">→</span></a>
-          <a class="link" href="https://github.com/BleakBubbles/flooper">GitHub <span class="arr" aria-hidden="true">→</span></a>
+          <p>A dev tool that quizzes you on your own code changes. Make a commit and a page opens with questions about the diff. Answer them correctly and the commit goes through.</p>
+          <p class="why">Built to keep people learning in the era of vibe coding.</p>
+          <ul class="stack" aria-label="Built with"><li title="TypeScript"><img src="assets/tech/typescript.svg" alt="TypeScript" width="24" height="24"></li><li title="Node.js"><img src="assets/tech/nodedotjs.svg" alt="Node.js" width="24" height="24"></li><li title="Git"><img src="assets/tech/git.svg" alt="Git" width="24" height="24"></li><li title="React"><img src="assets/tech/react.svg" alt="React" width="24" height="24"></li><li title="Vite"><img src="assets/tech/vite.svg" alt="Vite" width="24" height="24"></li><li title="Hono"><img src="assets/tech/hono.svg" alt="Hono" width="24" height="24"></li></ul>
+          <a class="link" href="https://www.npmjs.com/package/qwizz">npm <span class="arr" aria-hidden="true">→</span></a>
+          <a class="link" href="https://github.com/BleakBubbles/qwizz">GitHub <span class="arr" aria-hidden="true">→</span></a>
         </div>
       </article>
     </div>
@@ -134,7 +136,23 @@
 </div>
 
 <!-- Outside #app so it stays usable while frozen (z-index above the overlay). -->
-<button id="freeze" type="button" aria-label="Freeze the page"><span class="fz-icon">⏸</span><span class="fz-label">Freeze</span></button>
+<button id="freeze" type="button" aria-label="Freeze the page" title="Freeze (P)">
+  <span class="fz-glow" aria-hidden="true"></span>
+  <span class="fz-ring" aria-hidden="true"></span>
+  <span class="fz-face">
+    <!-- Pixel icon: drawn by main.js (squares on a shared lattice, so they stay joined when it warps). -->
+    <svg class="fz-grid" viewBox="0 0 24 24" width="34" height="34" aria-hidden="true"></svg>
+  </span>
+</button>
+<!-- Hand-drawn wobble for the button's border (see .fz-ring). -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <filter id="fz-wobble" x="-20%" y="-20%" width="140%" height="140%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="2" seed="7">
+      <animate attributeName="seed" values="7;19;31;43" dur="0.6s" calcMode="discrete" repeatCount="indefinite"/>
+    </feTurbulence>
+    <feDisplacementMap in="SourceGraphic" scale="3.5" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</svg>
 
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>

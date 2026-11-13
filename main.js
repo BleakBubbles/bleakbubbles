@@ -1,33 +1,15 @@
 import { createPixelFreeze } from './pixel-freeze.js';
-import { createShapes } from './shapes.js';
+import { createShapes, makeBag, PIECE_COLORS } from './shapes.js';
 import { loadRepoDetails } from './repos.js';
+import { createFreezeIcon } from './freeze-icon.js';
 
 loadRepoDetails();
 
 // ---------------------------------------------------------------------------
-// "I build ___" colours, dealt from a Tetris-style 7-bag: the seven piece
-// colours are shuffled into a bag and dealt one by one; when the bag is empty
-// it's refilled and reshuffled. Pastel versions of the Tetris piece colours,
-// matching the flying shapes (shapes.js uses the same values).
+// "I build ___" colours, dealt from a Tetris-style 7-bag of the pastel piece
+// colours (the same ones the flying Tetris pieces use).
 // ---------------------------------------------------------------------------
-const PIECES = {
-  I: '#2ee6ff', O: '#ffd166', T: '#b388ff', S: '#4dd4ac',
-  Z: '#ff6b6b', J: '#6c8cff', L: '#ffa45c',
-};
-function makeBag(colors) {
-  let bag = [];
-  return () => {
-    if (!bag.length) {
-      bag = [...colors];
-      for (let i = bag.length - 1; i > 0; i--) {           // Fisher–Yates
-        const j = Math.floor(Math.random() * (i + 1));
-        [bag[i], bag[j]] = [bag[j], bag[i]];
-      }
-    }
-    return bag.pop();
-  };
-}
-const nextColor = makeBag(Object.values(PIECES));
+const nextColor = makeBag(Object.values(PIECE_COLORS));
 
 // The track shows words 0..3, then slides to word 4 (a copy of word 0) and
 // loops back to 0 at the same spot. Each appearance gets a fresh colour; on
@@ -68,20 +50,30 @@ shapes.start();
 // Freeze
 // ---------------------------------------------------------------------------
 const btn = document.getElementById('freeze');
-const btnIcon = btn.querySelector('.fz-icon');
-const btnLabel = btn.querySelector('.fz-label');
+const icon = createFreezeIcon(btn.querySelector('.fz-grid'));
 
 const pf = createPixelFreeze({
   target: document.getElementById('app'),
   blockSize: 8,
   onStateChange: state => {
     const frozen = state === 'frozen' || state === 'freezing';
-    btnIcon.textContent = frozen ? '▶' : '⏸';
-    btnLabel.textContent = frozen ? 'Unfreeze' : 'Freeze';
     btn.setAttribute('aria-label', frozen ? 'Unfreeze the page' : 'Freeze the page');
-    // JS-driven motion isn't paused by pixel-freeze, so hold it here.
-    if (state === 'freezing') shapes.stop();
-    if (state === 'thawing') shapes.start();
+    btn.title = frozen ? 'Back to the real world (P)' : 'Freeze (P)';
+
+    if (state === 'freezing') {
+      // JS-driven motion isn't paused by pixel-freeze, so hold the shapes here.
+      shapes.stop();
+      // pixel-freeze pauses every CSS animation on the page right after this
+      // callback, in the same task. A microtask runs just after that pause:
+      // keep the button's border spinning.
+      queueMicrotask(() => btn.getAnimations({ subtree: true }).forEach(a => a.play()));
+      // The icon builds alongside the ripple (~1.7s): pixels drop away, a voxel cube stacks up.
+      icon.set(true, 1600);
+    }
+    if (state === 'thawing') {
+      shapes.start();
+      icon.set(false, 1200); // and comes apart alongside the thaw ripple (~1.3s)
+    }
   },
 });
 
