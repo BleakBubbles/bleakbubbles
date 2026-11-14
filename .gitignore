@@ -12,3 +12,6 @@ desktop.ini
 # Dependencies and build output, if a build step is added later
 node_modules/
 dist/
+
+# Resume source and builds (contain personal contact details; kept local)
+resume/
