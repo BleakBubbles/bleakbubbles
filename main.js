@@ -57,8 +57,8 @@ const pf = createPixelFreeze({
   blockSize: 8,
   onStateChange: state => {
     const frozen = state === 'frozen' || state === 'freezing';
-    btn.setAttribute('aria-label', frozen ? 'Unfreeze the page' : 'Freeze the page');
-    btn.title = frozen ? 'Back to the real world (P)' : 'Freeze (P)';
+    btn.setAttribute('aria-label', frozen ? 'Unpixelate the page' : 'Pixelate the page');
+    btn.title = frozen ? 'Unpixelate' : 'Pixelate';
 
     if (state === 'freezing') {
       // JS-driven motion isn't paused by pixel-freeze, so hold the shapes here.
@@ -77,7 +77,9 @@ const pf = createPixelFreeze({
   },
 });
 
-btn.addEventListener('click', e => pf.toggle(e));
+// Freezing ripples out from wherever the button was clicked; the ripple back
+// always starts from the button's centre, wherever on the button you click.
+btn.addEventListener('click', e => pf.toggle(pf.state === 'idle' ? e : btn));
 window.addEventListener('keydown', e => {
   if (e.key.toLowerCase() === 'p' && !e.metaKey && !e.ctrlKey && !e.altKey &&
       !(e.target instanceof HTMLInputElement)) {
