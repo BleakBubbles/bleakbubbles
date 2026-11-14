@@ -8,8 +8,9 @@
    ========================================================================== */
 
 :root {
+  /* Vertical spacing, on an 8px scale. */
   --intro-gap: 96px;     /* header → intro card; the freeze button's top lines up with the card */
-  --section-gap: 160px;  /* space between the content of neighbouring sections; halves sit on each side */
+  --section-gap: 144px;  /* space between the content of neighbouring sections; halves sit on each side */
   --font-head: "Space Grotesk", system-ui, sans-serif;
   --font-body: "Inter", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
@@ -39,17 +40,17 @@ body {
 #shapes-front { z-index: 2; }  /* above the content; clicks pass straight through */
 #app > :not(canvas) { position: relative; z-index: 1; }
 
-/* Solid cards behind the reading content (intro, project rows, About), so
+/* Solid cards behind the content (intro, project rows, Contact), so
    the shapes flying behind don't pass under the words. */
 .hero-card,
-.project,
-.about-card { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 32px; }
-.project { margin-bottom: 20px; }
+.contact-card,
+.project { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 32px; }
+.project { margin-bottom: 16px; }
 .project:last-child { margin-bottom: 0; }
 
 h1, h2, h3 { font-family: var(--font-head); line-height: 1.1; margin: 0; }
 h1 { font-size: clamp(3rem, 9vw, 6.2rem); letter-spacing: -0.03em; font-weight: 700; }
-h2 { font-size: clamp(2rem, 5vw, 3rem); letter-spacing: -0.02em; margin-bottom: 40px; }
+h2 { font-size: clamp(2rem, 5vw, 3rem); letter-spacing: -0.02em; margin-bottom: 32px; }
 h3 { font-size: 1.9rem; margin-bottom: 12px; }
 p { margin: 0 0 14px; }
 a { color: inherit; }
@@ -57,7 +58,7 @@ a { color: inherit; }
 .wrap { max-width: 1040px; margin: 0 auto; padding: 0 24px; }
 
 /* ---------- nav ---------- */
-.nav { background: var(--page); border-bottom: 1px solid var(--line); }
+.nav { background: var(--surface); border-bottom: 1px solid var(--line); }  /* a subtle bar: the same surface colour as the cards */
 .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 64px; }
 .brand { font: 700 1.05rem var(--font-head); text-decoration: none; display: flex; align-items: center; gap: 10px; }
 .brand img { border-radius: 50%; border: 1px solid var(--line-strong); }
@@ -78,7 +79,7 @@ a { color: inherit; }
 .hero-grid .avatar { grid-area: avatar; align-self: stretch; width: var(--avatar); height: auto; min-height: var(--avatar); object-fit: cover; } /* grows with the text if it ever gets taller, cropping slightly instead of misaligning */
 .hero-text { grid-area: text; min-width: 0; min-height: var(--avatar); display: flex; flex-direction: column; }
 .hero-text h1 { margin-top: -0.18em; } /* pulls the cap tops up to the box edge (Space Grotesk, line-height 1.1) */
-.hero-text .rotator { margin: 6px 0 24px; }
+.hero-text .rotator { margin: 6px 0 16px; }
 .hero-text .lede { margin-top: auto; margin-bottom: -0.39em; } /* name + subtitle at the top; the last line's baseline sits on the avatar's bottom edge */
 .avatar { width: 240px; height: 240px; border-radius: 32px; border: 1px solid var(--line-strong); background: var(--surface); display: block; }
 .kicker { font-weight: 600; color: var(--muted); margin-bottom: 8px; }
@@ -93,7 +94,7 @@ a { color: inherit; }
   75%, 95%  { transform: translateY(-3.75em); }
   100%      { transform: translateY(-5em); }
 }
-.lede { margin: 0; color: var(--muted); font-size: 1.12rem; line-height: 1.5; max-width: 44ch; }
+.lede { margin: 0; color: var(--muted); font-size: 1.05rem; line-height: 1.5; text-wrap: pretty; }  /* short bio: uses the text column's full width */
 
 
 /* ---------- projects ---------- */
@@ -124,20 +125,15 @@ a { color: inherit; }
 .link:hover .arr, .link:focus-visible .arr { transform: translateX(4px); }
 .link:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 2px; }
 
-/* ---------- about ---------- */
-.about { padding: calc(var(--section-gap) / 2) 0; }
-.about p { color: var(--muted); margin-bottom: 16px; text-wrap: pretty; } /* short sentences: use the card's full width, and avoid one-word last lines when they wrap */
-.about-card p:last-child { margin-bottom: 0; }
-
 /* ---------- contact ---------- */
-.contact { padding: calc(var(--section-gap) / 2) 0 64px; border-top: 1px solid var(--line); }
+.contact { padding: calc(var(--section-gap) / 2) 0 48px; }
 .say { font-size: clamp(3rem, 10vw, 6rem); margin-bottom: 32px; }
-.cursor { color: var(--accent); animation: blink 1.1s steps(1) infinite; }
+.cursor { color: var(--ink); animation: blink 1.1s steps(1) infinite; }
 @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: .25; } }
-.links { list-style: none; padding: 0; margin: 0 0 80px; display: flex; flex-wrap: wrap; gap: 14px; }
-.links a { display: inline-block; padding: 12px 20px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface); text-decoration: none; font-weight: 600; }
-.links a:hover { background: var(--raised); }
-.fine { font-size: .85rem; color: var(--faint); }
+.links { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 14px; }
+.links a { display: inline-block; padding: 12px 20px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--raised); text-decoration: none; font-weight: 600; }  /* one shade up from the card */
+.links a:hover { background: var(--line-strong); }
+.fine { font-size: .85rem; color: var(--faint); margin: 24px 0 0; }
 
 /* ---------- freeze button ----------
    A black squircle with a 3x3 "pixel" icon. When frozen it turns into a
@@ -187,14 +183,18 @@ a { color: inherit; }
   .wrap { padding: 0 16px; }
   #freeze { --gutter: 16px; }
   .nav ul { gap: 16px; }
-  :root { --section-gap: 112px; }
-  :root { --intro-gap: 48px; }
+  :root { --section-gap: 96px; --intro-gap: 48px; }
+  .project { grid-template-columns: 1fr; gap: 6px; }
+}
+
+/* The intro stacks (avatar above the text) a little earlier than the rest:
+   below ~900px the bio beside the avatar would outgrow it. */
+@media (max-width: 900px) {
   .hero-grid { grid-template-columns: 1fr; grid-template-areas: "avatar" "kicker" "text"; gap: 0; }
   .hero-grid .kicker { margin: 24px 0 8px; }
   .hero-text { min-height: 0; }
   .hero-text .rotator { margin: 18px 0 28px; }
   .hero-grid .avatar { width: 112px; height: 112px; min-height: 0; align-self: start; border-radius: 22px; }
-  .project { grid-template-columns: 1fr; gap: 6px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
