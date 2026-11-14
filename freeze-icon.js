@@ -88,7 +88,16 @@ const flatCells = () => {
 function buildRenderer(svg) {
   const pixels = flatCells().map((cell, i) => {
     const g = document.createElementNS(NS, 'g');
-    polygon(g, cell.fill).setAttribute('points', fmt(cell.pts));
+    // Inner group for the hover glint (styles.css), kept apart from the outer
+    // group's transform, which the build animation drives.
+    const px = document.createElementNS(NS, 'g');
+    px.setAttribute('class', 'fz-px');
+    px.style.setProperty('--d', cell.c + 2 - cell.r);   // diagonal index: 0 bottom-left .. 4 top-right
+    polygon(px, cell.fill).setAttribute('points', fmt(cell.pts));
+    const glint = polygon(px, '#ffffff');
+    glint.setAttribute('class', 'fz-glint');
+    glint.setAttribute('points', fmt(cell.pts));
+    g.appendChild(px);
     svg.appendChild(g);
     return { g, order: [4, 1, 6, 2, 7, 0, 5, 3][i] };   // drop out in a scattered order
   });
