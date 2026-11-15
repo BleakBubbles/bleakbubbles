@@ -129,7 +129,7 @@ a { color: inherit; }
 .contact { padding: calc(var(--section-gap) / 2) 0 48px; }
 .say { font-size: clamp(3rem, 10vw, 6rem); margin-bottom: 32px; }
 .cursor { color: var(--ink); animation: blink 1.1s steps(1) infinite; }
-@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: .25; } }
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 .links { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 14px; }
 .links a { display: inline-flex; align-items: center; gap: 10px; padding: 12px 20px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--raised); text-decoration: none; font-weight: 600; }  /* one shade up from the card */
 .links a:hover { background: var(--line-strong); }
@@ -190,16 +190,13 @@ a { color: inherit; }
 .fz-pulse { position: absolute; width: var(--fz-size); height: var(--fz-size); left: calc(var(--fz-size) / -2); top: calc(var(--fz-size) / -2);
             border-radius: var(--fz-radius); border: 2px solid rgba(236, 236, 241, .9); box-sizing: border-box; }
 .fz-dust { position: absolute; left: -2px; top: -2px; }
-/* Hover glint: a quick flash that sweeps across the pixel icon from the
-   bottom-left corner to the top-right, one diagonal at a time. The middle
-   diagonal is the three white squares, so the light seems to pass through
-   that bright stripe. */
-.fz-glint { opacity: 0; }
-/* No fill mode (the flash starts and ends invisible anyway). With "both", a
-   glint caught mid-flash by the freeze and restarted by the thaw would stay
-   stuck on its last frame on top of later glints, hiding them. */
-#freeze:hover .fz-glint, #freeze:focus-visible .fz-glint { animation: fz-glint .38s ease-out calc(var(--d) * 55ms); }
-@keyframes fz-glint { 0%, 100% { opacity: 0; } 35% { opacity: .85; } }
+/* Hover glint: the lit copies of the icon's pixels (freeze-icon.js) light up one diagonal
+   at a time (bottom-left to top-right) while hovered, and go dark again the
+   same way on leave. Transitions, so leaving halfway just turns it around.
+   Only on devices that really hover, so a tap doesn't leave it stuck lit. */
+.fz-glint { opacity: 0; transition: opacity .22s ease-out calc(var(--d) * 45ms); }
+@media (hover: hover) { #freeze:hover .fz-glint { opacity: 1; } }
+#freeze:focus-visible .fz-glint { opacity: 1; }
 @keyframes fz-spin { to { --fz-angle: 360deg; } }
 
 /* ---------- small screens ---------- */

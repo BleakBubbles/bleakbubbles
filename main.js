@@ -13,14 +13,37 @@ loadRepoDetails();
 const nextColor = makeBag(Object.values(PIECE_COLORS));
 
 // The track shows words 0..3, then slides to word 4 (a copy of word 0) and
-// loops back to 0 at the same spot. Each appearance gets a fresh colour; on
-// each loop, word 0 inherits word 4's colour so the visible word doesn't flip.
-const words = [...document.querySelectorAll('.words-track span')];
+// jumps back to 0 at the same spot to loop. Each appearance gets a fresh
+// colour, and word 0 must already match word 4 when the jump happens.
+//
+// Colours only change on words that are out of sight, at fixed points in the
+// cycle read from the animation's own clock (so a freeze pausing it is fine):
+//   ~10%, word 0 showing:  new colours for words 1-3
+//   ~30%, word 1 showing:  a new colour for word 4, copied to word 0
+// (Recolouring on 'animationiteration' instead made word 0 flash its old
+// colour: the event lands a frame or so after the jump.)
+const track = document.querySelector('.words-track');
+const words = [...track.children];
+const last = words.length - 1;
 words.forEach(w => { w.style.color = nextColor(); });
-document.querySelector('.words-track').addEventListener('animationiteration', () => {
-  words[0].style.color = words[words.length - 1].style.color;
-  for (let i = 1; i < words.length; i++) words[i].style.color = nextColor();
-});
+words[0].style.color = words[last].style.color;
+const done = { middle: 0, end: -1 };  // cycle numbers already handled (words 1-3 start fresh)
+setInterval(() => {
+  const anim = track.getAnimations()[0];
+  if (!anim || anim.currentTime == null) return;
+  const length = anim.effect.getComputedTiming().duration;
+  const cycle = Math.floor(anim.currentTime / length);
+  const at = (anim.currentTime % length) / length;
+  if (at >= 0.08 && at < 0.2 && done.middle !== cycle) {
+    done.middle = cycle;
+    for (let i = 1; i < last; i++) words[i].style.color = nextColor();
+  }
+  if (at >= 0.28 && at < 0.4 && done.end !== cycle) {
+    done.end = cycle;
+    words[last].style.color = nextColor();
+    words[0].style.color = words[last].style.color;
+  }
+}, 100);
 
 // ---------------------------------------------------------------------------
 // Header links glide to their section. Done here rather than with CSS
