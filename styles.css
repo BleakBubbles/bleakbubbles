@@ -27,7 +27,10 @@
 }
 
 * { box-sizing: border-box; }
-html { background: var(--page); color-scheme: dark; }
+/* overscroll: no rubber-band bounce past the top/bottom (Firefox/Zen, Safari).
+   scrollbar: thin and dim, so it blends into the page until you look for it. */
+html { background: var(--page); color-scheme: dark; overscroll-behavior-y: none;
+       scrollbar-width: thin; scrollbar-color: #2a2a33 transparent; }
 body {
   margin: 0;
   background: var(--page);
@@ -35,7 +38,7 @@ body {
   font: 400 17px/1.65 var(--font-body);
   -webkit-font-smoothing: antialiased;
 }
-#app { background: var(--page); position: relative; overflow-x: hidden; }
+#app { background: var(--page); position: relative; overflow-x: clip; }  /* clip, not hidden: hidden would make #app its own scroll box */
 #shapes, #shapes-front { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
 #shapes-front { z-index: 2; }  /* above the content; clicks pass straight through */
 #app > :not(canvas) { position: relative; z-index: 1; }
