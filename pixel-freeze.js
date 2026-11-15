@@ -85,6 +85,7 @@ const easeInOutCubic = t => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 
  * @param {boolean} [options.palette=false]        Limit colours to a 64-colour palette.
  * @param {number}  [options.freezeDuration=1700]  ms
  * @param {number}  [options.thawDuration=1300]    ms
+ * @param {(t:number)=>number} [options.thawEasing] Easing for the ripple back (0..1 -> 0..1); default ease-in-out.
  * @param {boolean} [options.unfreezeOnClick=true] Click/tap the frozen page to thaw from that point.
  * @param {boolean} [options.unfreezeOnEscape=true]
  * @param {number}  [options.zIndex=2147483000]    Overlay z-index. Put your own controls above it if they must stay usable.
@@ -98,6 +99,7 @@ export function createPixelFreeze(options = {}) {
     palette: false,
     freezeDuration: 1700,
     thawDuration: 1300,
+    thawEasing: easeInOutCubic,
     unfreezeOnClick: true,
     unfreezeOnEscape: true,
     zIndex: 2147483000,
@@ -202,8 +204,13 @@ export function createPixelFreeze(options = {}) {
 
   // Pause CSS animations, transitions and videos so the frozen moment holds still.
   let pausedAnims = [], pausedVideos = [];
+  // Only animations inside the frozen element are paused; anything outside it
+  // (a button floating above the overlay, say) keeps moving.
   function pauseTime() {
-    pausedAnims = document.getAnimations().filter(a => a.playState === 'running');
+    pausedAnims = document.getAnimations().filter(a => {
+      const t = a.effect && a.effect.target;
+      return a.playState === 'running' && (!t || target.contains(t));
+    });
     pausedAnims.forEach(a => a.pause());
     pausedVideos = [...document.querySelectorAll('video')].filter(v => !v.paused);
     pausedVideos.forEach(v => v.pause());
@@ -342,7 +349,7 @@ export function createPixelFreeze(options = {}) {
     const amp0 = Math.min(90, 40 + Rend * 0.03);
 
     const done = await animate(o.thawDuration, t => {
-      draw({ R: Math.max(1, (1 - easeInOutCubic(t)) * Rend * U0), amp: amp0 * (0.55 + 0.45 * t) });
+      draw({ R: Math.max(1, (1 - o.thawEasing(t)) * Rend * U0), amp: amp0 * (0.55 + 0.45 * t) });
     });
     if (done) {
       canvas.style.display = 'none';

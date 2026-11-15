@@ -1,7 +1,8 @@
 import { createPixelFreeze } from './pixel-freeze.js';
 import { createShapes, makeBag, PIECE_COLORS } from './shapes.js';
 import { loadRepoDetails } from './repos.js';
-import { createFreezeIcon } from './freeze-icon.js';
+import { drawFreezeIcon } from './freeze-icon.js';
+import { createButtonFx } from './button-fx.js';
 
 loadRepoDetails();
 
@@ -50,39 +51,117 @@ shapes.start();
 // Freeze
 // ---------------------------------------------------------------------------
 const btn = document.getElementById('freeze');
-const icon = createFreezeIcon(btn.querySelector('.fz-grid'));
+drawFreezeIcon(btn.querySelector('.fz-grid'));
+const fx = createButtonFx(btn);
 
 const pf = createPixelFreeze({
   target: document.getElementById('app'),
   blockSize: 8,
+  // The ripple back is an exact mirror of the freeze: the freeze grows the
+  // ring with ease-out over 1.7s; played backwards that's ease-in (t²) over the
+  // same 1.7s. (The glass distortion already mirrors.)
+  thawDuration: 1700,
+  thawEasing: t => t * t,
   onStateChange: state => {
     const frozen = state === 'frozen' || state === 'freezing';
     btn.setAttribute('aria-label', frozen ? 'Unpixelate the page' : 'Pixelate the page');
     btn.title = frozen ? 'Unpixelate' : 'Pixelate';
+    syncBusy();
 
     if (state === 'freezing') {
       // JS-driven motion isn't paused by pixel-freeze, so hold the shapes here.
       shapes.stop();
-      // pixel-freeze pauses every CSS animation on the page right after this
-      // callback, in the same task. A microtask runs just after that pause:
-      // keep the button's border spinning.
-      queueMicrotask(() => btn.getAnimations({ subtree: true }).forEach(a => a.play()));
-      // The icon builds alongside the ripple (~1.7s): pixels drop away, a voxel cube stacks up.
-      icon.set(true, 1600);
     }
     if (state === 'thawing') {
       shapes.start();
-      icon.set(false, 1200); // and comes apart alongside the thaw ripple (~1.3s)
     }
+    // The ripple back has just closed into the button: ring out, pixel dust.
+    if (state === 'idle') fx.land();
   },
 });
 
 // Freezing ripples out from wherever the button was clicked; the ripple back
 // always starts from the button's centre, wherever on the button you click.
-btn.addEventListener('click', e => pf.toggle(pf.state === 'idle' ? e : btn));
+//
+// The freeze's page snapshot (html2canvas) ties up the browser for a moment
+// before the ripple can start, and the button's squash would wait with it. So
+// the squash starts first, gets a couple of frames on screen, then the freeze
+// begins. (~30ms later: too short to notice on the ripple.)
+const nextFrame = () => new Promise(r => requestAnimationFrame(r));
+//
+// The button only works when the page is fully normal or fully frozen: while
+// a ripple is running (or the intro), clicks and P are ignored, and .busy
+// turns off the press look and the pointer cursor.
+let introPlaying = false, pressing = false;
+const isBusy = () => introPlaying || pressing || (pf.state !== 'idle' && pf.state !== 'frozen');
+function syncBusy() { btn.classList.toggle('busy', isBusy()); }
+async function toggle(origin) {
+  if (isBusy()) return;
+  if (pf.state === 'frozen') { fx.tap(); pf.unfreeze(btn); return; }
+  pressing = true; syncBusy();
+  fx.press();
+  await nextFrame(); await nextFrame();
+  pressing = false;
+  pf.freeze(origin); // sets 'freezing', which keeps the button busy
+}
+btn.addEventListener('click', e => toggle(e));
 window.addEventListener('keydown', e => {
   if (e.key.toLowerCase() === 'p' && !e.metaKey && !e.ctrlKey && !e.altKey &&
       !(e.target instanceof HTMLInputElement)) {
-    pf.toggle(btn);
+    toggle(btn);
   }
 });
+
+// ---------------------------------------------------------------------------
+// Intro: the page appears already pixelated, then ripples back to normal,
+// shrinking into the freeze button (the thaw ripple closes in on its origin).
+// A separate, throwaway freeze instance keeps the button's own freeze state
+// out of it. #intro-cover hides the page until the snapshot
+// is ready, so the unpixelated page never flashes first.
+// ---------------------------------------------------------------------------
+const INTRO_THAW = 1100;  // ms, the ripple back into the button
+// Ease-in: the ring barely moves at first (so the pixelated page reads),
+// then speeds up and snaps into the button. No separate pause needed.
+const introEasing = t => t * t;
+
+async function playIntro() {
+  const cover = document.getElementById('intro-cover');
+  const reveal = () => cover?.remove();
+  if (!cover) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { reveal(); return; }
+
+  introPlaying = true; syncBusy();
+  let intro = null;
+  try {
+    // Snapshot only once the fonts and images are in, so the pixels match the page.
+    await document.fonts.ready;
+    await Promise.all([...document.images].filter(img => !img.complete)
+      .map(img => new Promise(done => { img.addEventListener('load', done, { once: true }); img.addEventListener('error', done, { once: true }); })));
+
+    intro = createPixelFreeze({
+      target: document.getElementById('app'),
+      blockSize: 8,
+      freezeDuration: 0,          // straight to pixels, no ripple
+      thawDuration: INTRO_THAW,
+      thawEasing: introEasing,
+      unfreezeOnClick: false,
+      unfreezeOnEscape: false,
+      onStateChange: state => {
+        if (state === 'freezing') shapes.stop();
+        if (state === 'thawing') shapes.start();
+        if (state === 'idle') fx.land(); // the intro ripple lands in the button too
+      },
+    });
+    await intro.freeze(btn);
+    reveal();
+    await intro.unfreeze(btn);
+  } catch (err) {
+    console.warn('Intro skipped:', err); // e.g. no WebGL: just show the page
+  } finally {
+    reveal();
+    intro?.destroy();
+    shapes.start();
+    introPlaying = false; syncBusy();
+  }
+}
+playIntro();

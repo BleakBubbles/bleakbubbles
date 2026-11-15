@@ -8,7 +8,7 @@ Press the button in the top-right corner (or the <kbd>P</kbd> key). A glassy rip
 
 - **Intro, Projects, Contact.** Each project card shows live details pulled from GitHub (last update) and npm (latest version) when the page loads.
 - **Flying shapes.** Flat-shaded 3D solids tumble across the page in parallax, some behind the cards and some in front. One of them is always a Tetris piece; the pieces come in 7-bag order, like the real game.
-- **The freeze.** The pixel icon on the button builds itself into a 3×3×3 voxel cube while the page freezes, and comes apart when it thaws.
+- **The freeze.** The button's 3×3 pixel icon glints when you hover it; pressing it squashes the button, and the ripple back ends in a puff of pixel dust.
 
 No framework and no build step: plain HTML, CSS and JavaScript modules.
 
@@ -31,7 +31,8 @@ Then open <http://localhost:8417>.
 | `main.js` | Wires everything together: the freeze button, the "I build…" word colours, smooth-scrolling header links |
 | `pixel-freeze.js` | The freeze effect: snapshots the page and draws it through a WebGL shader with the ripple and pixelation |
 | `shapes.js` | The flying 3D shapes and Tetris pieces, drawn on two canvases with a small hand-rolled 3D projection |
-| `freeze-icon.js` | The freeze button's icon and its pixels-to-cube animation |
+| `freeze-icon.js` | Draws the freeze button's 3×3 pixel icon |
+| `button-fx.js` | The button's press squash, ring pulses and pixel dust |
 | `repos.js` | Fetches the live GitHub and npm details for the project cards |
 | `assets/` | Avatar, résumé PDF, project logos (`logos/`), tech icons (`tech/`) and contact icons (`icons/`) |
 

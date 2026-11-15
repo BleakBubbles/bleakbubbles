@@ -136,10 +136,16 @@ a { color: inherit; }
 .links img { display: block; flex: none; }
 .fine { font-size: .85rem; color: var(--faint); margin: 24px 0 0; }
 
+/* ---------- intro cover ----------
+   Covers the page until the intro has taken its pixelated snapshot, so the
+   unpixelated page never flashes first. main.js removes it; if the script
+   never runs, it fades out by itself after 3s so the page can't stay hidden. */
+#intro-cover { position: fixed; inset: 0; z-index: 2147483200; background: var(--page);
+               animation: intro-failsafe .3s ease-out 3s forwards; }
+@keyframes intro-failsafe { to { opacity: 0; visibility: hidden; } }
+
 /* ---------- freeze button ----------
-   A black squircle with a 3x3 "pixel" icon. When frozen it turns into a
-   3x3x3 voxel cube ("back to the real world" = back to 3D), extruding out of
-   the flat grid once the ripple is done. Drawn and animated by freeze-icon.js.
+   A black squircle with a 3x3 "pixel" icon (drawn by freeze-icon.js).
    The border is a spinning pastel rainbow, roughened by an SVG filter so it
    looks hand-drawn and "boils" like an animated avatar frame.
    The button sits outside #app, so html2canvas never has to draw any of this. */
@@ -156,7 +162,7 @@ a { color: inherit; }
   position: fixed; right: var(--margin); top: calc(65px + var(--intro-gap)); z-index: 2147483001;  /* top lines up with the intro card's top (header is 64px + 1px border) */
   width: var(--fz-size); height: var(--fz-size); padding: 0; border: 0; border-radius: var(--fz-radius);
   background: none; cursor: pointer; -webkit-tap-highlight-color: transparent;
-  transition: transform .2s cubic-bezier(.3, 1.6, .5, 1);
+  transition: transform .12s cubic-bezier(.3, 1.6, .5, 1);
 }
 /* Wide screens: the button sits just outside the content column, a gutter's
    width (24px) to the right of the cards. From 1200px wide there's room for
@@ -164,8 +170,10 @@ a { color: inherit; }
 @media (min-width: 1200px) {
   #freeze { right: calc(var(--margin) - var(--gutter) - var(--fz-size)); }
 }
-#freeze:hover { transform: scale(1.06); }
-#freeze:active { transform: scale(.94); }
+/* Snaps in instantly on press; the release still springs back (the transition above). */
+#freeze:not(.busy):active { transform: scale(.94); transition: none; }
+/* Mid-ripple (or during the intro) the button ignores clicks; see main.js. */
+#freeze.busy { cursor: default; }
 #freeze:focus-visible { outline: 2px solid var(--ink); outline-offset: 6px; }
 .fz-ring, .fz-glow {
   position: absolute; inset: calc(var(--fz-ring) * -1); border-radius: calc(var(--fz-radius) + var(--fz-ring));
@@ -176,6 +184,12 @@ a { color: inherit; }
 .fz-glow { inset: -2px; filter: blur(10px); opacity: .5; }
 .fz-face { position: absolute; inset: 0; border-radius: var(--fz-radius); background: #000; display: grid; place-items: center; }
 .fz-grid { display: block; overflow: visible; }
+/* Press / landing effects (button-fx.js): a layer centred on the button and
+   behind it, so pulse rings appear to come out from under the button. */
+.fz-fx { position: absolute; left: 50%; top: 50%; width: 0; height: 0; z-index: -1; pointer-events: none; }
+.fz-pulse { position: absolute; width: var(--fz-size); height: var(--fz-size); left: calc(var(--fz-size) / -2); top: calc(var(--fz-size) / -2);
+            border-radius: var(--fz-radius); border: 2px solid rgba(236, 236, 241, .9); box-sizing: border-box; }
+.fz-dust { position: absolute; left: -2px; top: -2px; }
 /* Hover glint: a quick flash that sweeps across the pixel icon from the
    bottom-left corner to the top-right, one diagonal at a time. The middle
    diagonal is the three white squares, so the light seems to pass through

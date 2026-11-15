@@ -32,6 +32,8 @@
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+<!-- Hides the page until the intro has its pixelated snapshot (see main.js). -->
+<div id="intro-cover" aria-hidden="true"></div>
 <div id="app">
   <!-- Flying 3D shapes, drawn behind everything (see shapes.js). -->
   <canvas id="shapes" aria-hidden="true"></canvas>
@@ -63,7 +65,7 @@
           </span>
         </span>
       </p>
-      <p class="lede">CS + Finance student at UWaterloo. I strive to create software that's as pleasant to use as it is well-built. If I'm not coding, you can find me on a badminton court or at my desk enjoying a good roguelike run.</p>
+      <p class="lede">As a CS + Finance student at UWaterloo. I strive to create software that's as charming as it is reliable. When I'm not coding, you can find me on a badminton court or at my desk enjoying a good roguelike run.</p>
       </div>
     </div>
     </div>
@@ -150,7 +152,7 @@
   <span class="fz-glow" aria-hidden="true"></span>
   <span class="fz-ring" aria-hidden="true"></span>
   <span class="fz-face">
-    <!-- Pixel icon: drawn by main.js (squares on a shared lattice, so they stay joined when it warps). -->
+    <!-- Pixel icon: drawn by freeze-icon.js. -->
     <svg class="fz-grid" viewBox="0 0 24 24" width="34" height="34" aria-hidden="true"></svg>
   </span>
 </button>
