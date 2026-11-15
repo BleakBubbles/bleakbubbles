@@ -53,7 +53,7 @@ export function createButtonFx(btn) {
       layer.appendChild(p);
 
       const angle = (i / count) * Math.PI * 2 + rand(-0.25, 0.25);
-      const start = 30;                    // from the button's rim (it's 56px wide)
+      const start = btn.offsetWidth / 2 + 2; // just outside the button's rim
       const dist = rand(22, 52);
       const x0 = Math.cos(angle) * start, y0 = Math.sin(angle) * start;
       const x1 = Math.cos(angle) * (start + dist), y1 = Math.sin(angle) * (start + dist);

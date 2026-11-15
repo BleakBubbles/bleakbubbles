@@ -170,6 +170,11 @@ a { color: inherit; }
 @media (min-width: 1200px) {
   #freeze { right: calc(var(--margin) - var(--gutter) - var(--fz-size)); }
 }
+/* Big screens: a bigger button (icon, border and effects all scale with it).
+   From 1440px wide the margin has plenty of room for it. */
+@media (min-width: 1440px) {
+  #freeze { --fz-size: 68px; --fz-radius: 19px; }
+}
 /* Snaps in instantly on press; the release still springs back (the transition above). */
 #freeze:not(.busy):active { transform: scale(.94); transition: none; }
 /* Mid-ripple (or during the intro) the button ignores clicks; see main.js. */
@@ -183,7 +188,7 @@ a { color: inherit; }
 .fz-ring { filter: url(#fz-wobble); }
 .fz-glow { inset: -2px; filter: blur(10px); opacity: .5; }
 .fz-face { position: absolute; inset: 0; border-radius: var(--fz-radius); background: #000; display: grid; place-items: center; }
-.fz-grid { display: block; overflow: visible; }
+.fz-grid { display: block; overflow: visible; width: calc(var(--fz-size) * 34 / 56); height: auto; }  /* 34px on the 56px button */
 /* Press / landing effects (button-fx.js): a layer centred on the button and
    behind it, so pulse rings appear to come out from under the button. */
 .fz-fx { position: absolute; left: 50%; top: 50%; width: 0; height: 0; z-index: -1; pointer-events: none; }
