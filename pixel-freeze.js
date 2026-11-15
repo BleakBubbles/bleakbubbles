@@ -347,9 +347,14 @@ export function createPixelFreeze(options = {}) {
     gl.uniform2f(U.C, p.x, p.y);
     const Rend = (farthestCorner(p) + 30) / (U0 - HW);
     const amp0 = Math.min(90, 40 + Rend * 0.03);
+    // Start with the ring's outer edge just touching the farthest corner, so
+    // the thaw shows from the first frame. (Starting from the freeze's end
+    // radius, well past the corner, spent the first part of the thaw on
+    // nothing visible.)
+    const R0 = (farthestCorner(p) + 2) * U0 / (U0 + HW);
 
     const done = await animate(o.thawDuration, t => {
-      draw({ R: Math.max(1, (1 - o.thawEasing(t)) * Rend * U0), amp: amp0 * (0.55 + 0.45 * t) });
+      draw({ R: Math.max(1, (1 - o.thawEasing(t)) * R0), amp: amp0 * (0.55 + 0.45 * t) });
     });
     if (done) {
       canvas.style.display = 'none';

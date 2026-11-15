@@ -80,11 +80,11 @@ const fx = createButtonFx(btn);
 const pf = createPixelFreeze({
   target: document.getElementById('app'),
   blockSize: 8,
-  // The ripple back is an exact mirror of the freeze: the freeze grows the
-  // ring with ease-out over 1.7s; played backwards that's ease-in (t²) over the
-  // same 1.7s. (The glass distortion already mirrors.)
-  thawDuration: 1700,
-  thawEasing: t => t * t,
+  // The ripple back speeds up into the button, roughly mirroring the freeze's
+  // ease-out, but with some speed from the start so it doesn't seem to hang
+  // (a pure t² ease-in barely moved for the first few hundred ms).
+  thawDuration: 1500,
+  thawEasing: t => t * (0.45 + 0.55 * t),
   onStateChange: state => {
     const frozen = state === 'frozen' || state === 'freezing';
     btn.setAttribute('aria-label', frozen ? 'Unpixelate the page' : 'Pixelate the page');
