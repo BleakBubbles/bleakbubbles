@@ -4,4 +4,4 @@ aka **BleakBubbles**. As a CS + Finance student at UWaterloo, I aim to build fas
 
 [maxhua.dev](https://maxhua.dev) · [LinkedIn](https://www.linkedin.com/in/max-hua/) · [max.hua@uwaterloo.ca](mailto:max.hua@uwaterloo.ca)
 
-<sub>This repo is the source of maxhua.dev. Press the button. · [Credits](CREDITS.md)</sub>
+<sub>This repo is the source of maxhua.dev. [Credits](CREDITS.md)</sub>
