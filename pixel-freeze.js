@@ -90,6 +90,8 @@ const easeInOutCubic = t => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 
  * @param {boolean} [options.unfreezeOnEscape=true]
  * @param {number}  [options.zIndex=2147483000]    Overlay z-index. Put your own controls above it if they must stay usable.
  * @param {Function}[options.html2canvas]          html2canvas function; defaults to window.html2canvas.
+ * @param {(doc:Document)=>void} [options.onclone] Adjust html2canvas's copy of the page before the
+ *                                                 snapshot (e.g. hide styles it can't draw).
  * @param {(state:'idle'|'freezing'|'frozen'|'thawing')=>void} [options.onStateChange]
  */
 export function createPixelFreeze(options = {}) {
@@ -302,7 +304,7 @@ export function createPixelFreeze(options = {}) {
         backgroundColor: backgroundColor(),
         logging: false, useCORS: true,
         ignoreElements: el => el === canvas,
-        onclone: doc => copyAnimatedState(animated, doc),
+        onclone: doc => { copyAnimatedState(animated, doc); o.onclone?.(doc); },
       });
     } catch (err) {
       resumeTime();

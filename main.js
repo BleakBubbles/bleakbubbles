@@ -74,9 +74,20 @@ const btn = document.getElementById('freeze');
 drawFreezeIcon(btn.querySelector('.fz-grid'));
 const fx = createButtonFx(btn);
 
+// html2canvas can't draw box-shadows: it paints them over the inside of the
+// card (hiding its background, and in some browsers its contents) instead of
+// around it. The snapshot leaves them out; at 8px blocks a soft shadow
+// wouldn't show anyway.
+function snapshotFixes(doc) {
+  const style = doc.createElement('style');
+  style.textContent = '#app * { box-shadow: none !important; }';
+  doc.head.append(style);
+}
+
 const pf = createPixelFreeze({
   target: document.getElementById('app'),
   blockSize: 8,
+  onclone: snapshotFixes,
   // The ripple back speeds up into the button, roughly mirroring the freeze's
   // ease-out, but with some speed from the start so it doesn't seem to hang
   // (a pure t² ease-in barely moved for the first few hundred ms).
@@ -161,6 +172,7 @@ async function playIntro() {
     intro = createPixelFreeze({
       target: document.getElementById('app'),
       blockSize: 8,
+      onclone: snapshotFixes,
       freezeDuration: 0,          // straight to pixels, no ripple
       thawDuration: INTRO_THAW,
       thawEasing: introEasing,
