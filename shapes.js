@@ -117,34 +117,22 @@ function shade(hex, k) {
 // it. Shapes nearer than `frontFrom` (depth 0 far .. 1 near) are drawn on the
 // front layer, so "in front" stays consistent with size and speed.
 //
-// Scroll modes (the canvases are always viewport-sized; only the maths changes):
-//   'fixed'    shapes live on the screen and ignore scrolling
-//   'page'     shapes live on the page and scroll away with the content
-//   'parallax' like 'page', but far shapes scroll slower than near ones (the default)
-// In the page modes, shapes are spread down the whole page, and only the ones
-// currently on screen are drawn.
-// Parallax: share of the page's scroll speed for the farthest and nearest shapes.
-// Kept well below 1 so no shape tries to stick to the content: the canvas is
-// redrawn from JavaScript a frame out of step with native scrolling, and that
-// lag shows as jitter in proportion to this number.
-const PARALLAX_MIN = 0.2;
-const PARALLAX_MAX = 0.65;
-
-export function createShapes(canvas, { count, front = null, frontFrom = Infinity, scroll = 'parallax' } = {}) {
+// Both canvases are fixed to the viewport, and the shapes live on the screen:
+// the page scrolls over them. (Scroll-linked modes, page and parallax, were
+// tried and dropped: a canvas redrawn from JavaScript lags native scrolling by
+// a frame, so the shapes jittered.)
+export function createShapes(canvas, { count, front = null, frontFrom = Infinity } = {}) {
   const layers = [canvas, front].filter(Boolean).map(c => ({ c, ctx: c.getContext('2d') }));
   const back = layers[0].ctx;
   const fore = front ? layers[1].ctx : back;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let W = 0, H = 0, dpr = 1, maxScroll = 0, populatedFor = 0;
-  const scrollFactor = depth => scroll === 'fixed' ? 0 : scroll === 'page' ? 1 : PARALLAX_MIN + (PARALLAX_MAX - PARALLAX_MIN) * depth;
-  const measurePage = () => { maxScroll = Math.max(0, document.documentElement.scrollHeight - innerHeight); };
+  let W = 0, H = 0, dpr = 1;
   let shapes = [];
   let raf = 0, last = 0, running = false;
 
   function resize() {
     dpr = Math.min(window.devicePixelRatio || 1, 2);
     W = innerWidth; H = innerHeight;
-    measurePage();
     for (const { c, ctx } of layers) {
       c.width = Math.round(W * dpr);
       c.height = Math.round(H * dpr);
@@ -159,12 +147,8 @@ export function createShapes(canvas, { count, front = null, frontFrom = Infinity
     const size = 18 + depth * 46;
     const dir = Math.random() < 0.5 ? 1 : -1;
     const speed = (22 + depth * 60) * dir;
-    const k = scrollFactor(depth);
-    // Page y. A new piece appears in the part of the page being looked at;
-    // other shapes anywhere in the band this depth can be seen through.
-    const y = piece && !initial
-      ? scrollY * k + rand(H * 0.1, H * 0.9)
-      : rand(H * 0.05, H * 0.95 + k * maxScroll);
+    // A new piece keeps away from the top and bottom edges, so it reads.
+    const y = piece && !initial ? rand(H * 0.1, H * 0.9) : rand(H * 0.05, H * 0.95);
     return {
       kind: piece ? 'piece' + piece : KINDS[(Math.random() * KINDS.length) | 0],
       color: piece ? PIECES[piece].color : COLORS[(Math.random() * COLORS.length) | 0],
@@ -172,7 +156,7 @@ export function createShapes(canvas, { count, front = null, frontFrom = Infinity
       outline: !!piece,
       depth, size,
       x: initial ? rand(0, W) : dir > 0 ? -size * (piece ? 1.1 : 2) : W + size * (piece ? 1.1 : 2), // pieces start just off the edge, so the next one shows up quickly
-      y, k,
+      y,
       vx: speed,
       vy: rand(-12, 12),
       rot: [rand(0, 6.3), rand(0, 6.3), rand(0, 6.3)],
@@ -182,10 +166,7 @@ export function createShapes(canvas, { count, front = null, frontFrom = Infinity
   }
 
   function populate() {
-    const perScreen = count ?? (W < 760 ? 7 : 12);
-    const avgK = scroll === 'fixed' ? 0 : scroll === 'page' ? 1 : (PARALLAX_MIN + PARALLAX_MAX) / 2;
-    const n = Math.min(90, Math.round(perScreen * (1 + avgK * maxScroll / H))); // same density per screen
-    populatedFor = maxScroll;
+    const n = count ?? (W < 760 ? 7 : 12);
     shapes = Array.from({ length: n }, (_, i) => spawn(true, i === 0)) // shape 0 is the piece slot
       .sort((a, b) => a.depth - b.depth);
   }
@@ -210,7 +191,7 @@ export function createShapes(canvas, { count, front = null, frontFrom = Infinity
       f.idx.forEach((i, k) => {
         const [x, y, z] = pts[i];
         const p = FOCAL / (FOCAL - z);
-        const sx = s.x + x * s.size * p, sy = s.y - scrollY * s.k + y * s.size * p;
+        const sx = s.x + x * s.size * p, sy = s.y + y * s.size * p;
         k ? ctx.lineTo(sx, sy) : ctx.moveTo(sx, sy);
       });
       ctx.closePath();
@@ -226,11 +207,7 @@ export function createShapes(canvas, { count, front = null, frontFrom = Infinity
 
   function drawAll() {
     for (const { ctx } of layers) ctx.clearRect(0, 0, W, H);
-    for (const s of shapes) { // far ones first
-      const sy = s.y - scrollY * s.k, off = s.size * 2.5;
-      if (sy < -off || sy > H + off) continue; // off screen: skip drawing
-      drawShape(s, s.depth >= frontFrom ? fore : back);
-    }
+    for (const s of shapes) drawShape(s, s.depth >= frontFrom ? fore : back); // far ones first
   }
 
   function frame(now) {
@@ -243,7 +220,7 @@ export function createShapes(canvas, { count, front = null, frontFrom = Infinity
       s.y += s.vy * dt + Math.sin((s.bob += dt * 0.8)) * 0.15;
       s.rot[0] += s.spin[0] * dt; s.rot[1] += s.spin[1] * dt; s.rot[2] += s.spin[2] * dt;
       const off = s.size * 2.5;
-      if (s.x < -off - 1 || s.x > W + off + 1 || s.y < -off || s.y > H + s.k * maxScroll + off) {
+      if (s.x < -off - 1 || s.x > W + off + 1 || s.y < -off || s.y > H + off) {
         shapes[i] = spawn(false, s.isPiece); // a piece is replaced by the next piece
         respawned = true;
       }
@@ -265,13 +242,16 @@ export function createShapes(canvas, { count, front = null, frontFrom = Infinity
 
   resize();
   populate();
-  window.addEventListener('resize', () => { resize(); populate(); if (!running) drawAll(); });
-  window.addEventListener('scroll', () => { if (!running) drawAll(); }, { passive: true });
-  // The page grows as fonts, images and repo details load; keep the scroll range current.
-  new ResizeObserver(() => {
-    measurePage();
-    if (scroll !== 'fixed' && Math.abs(maxScroll - populatedFor) > H * 0.5) { populate(); if (!running) drawAll(); }
-  }).observe(document.documentElement);
+  // Only a width change deals out fresh shapes. On phones the height changes
+  // whenever the address bar slides in or out while scrolling, and
+  // repopulating then made every shape jump; shapes that end up off the
+  // bottom simply respawn as usual.
+  window.addEventListener('resize', () => {
+    const oldW = W;
+    resize();
+    if (W !== oldW) populate();
+    if (!running) drawAll();
+  });
 
   return { start, stop };
 }
