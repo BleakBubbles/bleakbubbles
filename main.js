@@ -64,10 +64,7 @@ document.querySelectorAll('.nav a[href^="#"]').forEach(a => a.addEventListener('
 // ---------------------------------------------------------------------------
 // Flying shapes
 // ---------------------------------------------------------------------------
-const shapes = createShapes(document.getElementById('shapes'), {
-  front: document.getElementById('shapes-front'),
-  frontFrom: 0.5, // the nearer half of the shapes fly in front of the content
-});
+const shapes = createShapes(document.getElementById('shapes')); // all behind the content
 shapes.start();
 
 // ---------------------------------------------------------------------------

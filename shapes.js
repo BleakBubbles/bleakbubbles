@@ -113,18 +113,16 @@ function shade(hex, k) {
   return `rgb(${ch(16)},${ch(8)},${ch(0)})`;
 }
 
-// Two layers: `canvas` sits behind the page content, `front` (optional) above
-// it. Shapes nearer than `frontFrom` (depth 0 far .. 1 near) are drawn on the
-// front layer, so "in front" stays consistent with size and speed.
+// One canvas behind the page content: every shape passes behind the cards.
+// (A second layer above the content, for the nearer shapes, was tried and
+// dropped: shapes crossing the text got in the way of reading it.)
 //
-// Both canvases are fixed to the viewport, and the shapes live on the screen:
+// The canvas is fixed to the viewport, and the shapes live on the screen:
 // the page scrolls over them. (Scroll-linked modes, page and parallax, were
 // tried and dropped: a canvas redrawn from JavaScript lags native scrolling by
 // a frame, so the shapes jittered.)
-export function createShapes(canvas, { count, front = null, frontFrom = Infinity } = {}) {
-  const layers = [canvas, front].filter(Boolean).map(c => ({ c, ctx: c.getContext('2d') }));
-  const back = layers[0].ctx;
-  const fore = front ? layers[1].ctx : back;
+export function createShapes(canvas, { count } = {}) {
+  const ctx = canvas.getContext('2d');
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   let W = 0, H = 0, dpr = 1;
   let shapes = [];
@@ -133,11 +131,9 @@ export function createShapes(canvas, { count, front = null, frontFrom = Infinity
   function resize() {
     dpr = Math.min(window.devicePixelRatio || 1, 2);
     W = innerWidth; H = innerHeight;
-    for (const { c, ctx } of layers) {
-      c.width = Math.round(W * dpr);
-      c.height = Math.round(H * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
+    canvas.width = Math.round(W * dpr);
+    canvas.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
   // depth 0 (far) .. 1 (near): nearer shapes are bigger, faster, brighter.
@@ -171,7 +167,7 @@ export function createShapes(canvas, { count, front = null, frontFrom = Infinity
       .sort((a, b) => a.depth - b.depth);
   }
 
-  function drawShape(s, ctx) {
+  function drawShape(s) {
     const solid = SOLIDS[s.kind];
     const pts = solid.v.map(p => rotate(p, s.rot));
     const faces = solid.f.map(face => {
@@ -206,8 +202,8 @@ export function createShapes(canvas, { count, front = null, frontFrom = Infinity
   }
 
   function drawAll() {
-    for (const { ctx } of layers) ctx.clearRect(0, 0, W, H);
-    for (const s of shapes) drawShape(s, s.depth >= frontFrom ? fore : back); // far ones first
+    ctx.clearRect(0, 0, W, H);
+    for (const s of shapes) drawShape(s); // far ones first
   }
 
   function frame(now) {
@@ -232,7 +228,7 @@ export function createShapes(canvas, { count, front = null, frontFrom = Infinity
 
   function start() {
     if (running) return;
-    for (const { c } of layers) c.style.display = '';
+    canvas.style.display = '';
     if (reduceMotion) { drawAll(); return; }
     running = true;
     last = performance.now();
