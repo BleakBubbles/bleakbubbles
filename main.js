@@ -91,7 +91,11 @@ const pf = createPixelFreeze({
   // The ripple back speeds up into the button, roughly mirroring the freeze's
   // ease-out, but with some speed from the start so it doesn't seem to hang
   // (a pure t² ease-in barely moved for the first few hundred ms).
-  thawDuration: 1500,
+  // 1s, not the freeze's 1.7s: the freeze's leading edge reaches the far
+  // corner in ~0.8s (the rest is its tail settling off-screen), while the
+  // thaw's edge spends its whole duration crossing the screen. At 1.5s the
+  // ripple back looked clearly slower than the ripple out.
+  thawDuration: 1000,
   thawEasing: t => t * (0.45 + 0.55 * t),
   onStateChange: state => {
     const frozen = state === 'frozen' || state === 'freezing';
@@ -103,11 +107,13 @@ const pf = createPixelFreeze({
       // JS-driven motion isn't paused by pixel-freeze, so hold the shapes here.
       shapes.stop();
     }
-    if (state === 'thawing') {
+    // The shapes stay put until the ripple back has finished. Restarting them
+    // as it began let them move under the still-frozen part of the screen, so
+    // each one jumped as the ripple uncovered it.
+    if (state === 'idle') {
       shapes.start();
+      fx.land(); // the ripple back has just closed into the button: ring out, pixel dust
     }
-    // The ripple back has just closed into the button: ring out, pixel dust.
-    if (state === 'idle') fx.land();
   },
 });
 
@@ -180,8 +186,7 @@ async function playIntro() {
       unfreezeOnEscape: false,
       onStateChange: state => {
         if (state === 'freezing') shapes.stop();
-        if (state === 'thawing') shapes.start();
-        if (state === 'idle') fx.land(); // the intro ripple lands in the button too
+        if (state === 'idle') { shapes.start(); fx.land(); } // the intro ripple lands in the button too
       },
     });
     await intro.freeze(btn);
