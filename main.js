@@ -142,9 +142,17 @@ async function toggle(origin) {
   pf.freeze(origin); // sets 'freezing', which keeps the button busy
 }
 btn.addEventListener('click', e => toggle(e));
+// Typing a P into a text field, select or editable area shouldn't freeze the
+// page. composedPath()[0] is the element actually typed in, even inside a
+// widget's shadow DOM (Flooper's), where e.target is only the widget's host.
+const isTyping = e => {
+  const el = e.composedPath()[0];
+  return el instanceof Element &&
+    el.closest('input, textarea, select, [contenteditable]:not([contenteditable="false"])') !== null;
+};
 window.addEventListener('keydown', e => {
   if (e.key.toLowerCase() === 'p' && !e.metaKey && !e.ctrlKey && !e.altKey &&
-      !(e.target instanceof HTMLInputElement)) {
+      !e.repeat && !e.isComposing && !isTyping(e)) {
     toggle(btn);
   }
 });

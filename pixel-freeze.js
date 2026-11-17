@@ -382,7 +382,17 @@ export function createPixelFreeze(options = {}) {
 
   // ---- input -----------------------------------------------------------------
   const onCanvasClick = e => { if (state === 'frozen') unfreeze(e); };
-  const onKey = e => { if (o.unfreezeOnEscape && e.key === 'Escape' && state === 'frozen') unfreeze(); };
+  // Escape inside a text field belongs to the field (clearing it, closing a
+  // suggestion list), so it doesn't unfreeze. composedPath()[0] finds the field
+  // even inside a shadow DOM, where e.target is only the shadow host.
+  const inField = e => {
+    const el = e.composedPath()[0];
+    return el instanceof Element &&
+      el.closest('input, textarea, select, [contenteditable]:not([contenteditable="false"])') !== null;
+  };
+  const onKey = e => {
+    if (o.unfreezeOnEscape && e.key === 'Escape' && state === 'frozen' && !inField(e)) unfreeze();
+  };
   canvas.addEventListener('click', onCanvasClick);
   window.addEventListener('keydown', onKey);
 
